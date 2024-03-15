@@ -13,6 +13,7 @@ import {Permissions} from "./components/Pages/Management/Permissions";
 import {Category} from "./components/Pages/Content/Categories/Category";
 import {Article} from "./components/Pages/Content/Articles/Article";
 import {ArticleImages} from "./components/Pages/Content/Images/ArticleImages";
+import {Authors} from "./components/Pages/Content/Authors";
 
 export const router = createBrowserRouter([
   {
@@ -42,6 +43,10 @@ export const router = createBrowserRouter([
       {
         path: "/content/article/:article/images",
         element: <ArticleImages />
+      },
+      {
+        path: "/content/authors",
+        element: <Authors />
       },
       {
         path: "/management/users",
