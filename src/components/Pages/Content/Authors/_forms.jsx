@@ -122,42 +122,23 @@ export const TranslateAuthor = ({author, onOk, onCancel, open}) => {
 
   const [form] = Form.useForm()
 
-  const {data, isLoading, isSuccess} = useGetAuthorQuery(author)
+  const {data, isLoading} = useGetAuthorQuery(author)
 
   const [updateAuthor] = useUpdateAuthorMutation()
 
-  const [formValues, setFormValues] = useState()
-
-  useEffect(() => {
-    if (isSuccess){
-      // const translated = data.translations.find(translation=>translation.locale===i18n.language)
-      // console.log(translated)
-      // setFormValues(data.translations.find(translation=>translation.locale===i18n.language))
-    }
-  }, [isSuccess])
-
   if (isLoading) return <Spin />
 
-  // const formValues = data?.translations.find(translation=>translation.locale===i18n.language)
-
-
-  console.log(formValues)
-  const handleLangChange = locale => {
-    i18n.changeLanguage(locale)
-    // setFormValues(data?.translatons.find(({locale})=>locale===i18n.language))
-
-  }
-
-
+  const formValues = data?.translations.find(translation=>translation.locale===i18n.language)
 
   return <Modal
       open={open}
       onOk={()=>{
         form.validateFields()
           .then(values=>{
+            form.resetFields()
             updateAuthor({author, body: {...values}})
           })
-        // onOk()
+        onOk()
       }}
       onCancel={()=>{
         onCancel()
@@ -169,8 +150,9 @@ export const TranslateAuthor = ({author, onOk, onCancel, open}) => {
         name="edit_author_form"
         layout="vertical"
         initialValues={{
-          // first_name: formValues.first_name,
-          // email: data?.email,
+          first_name: formValues ? formValues.first_name : "No trans" ,
+          last_name: formValues ? formValues.last_name : "No trans",
+          email: data?.email,
           locale: i18n.language
         }}
       >
@@ -196,8 +178,6 @@ export const TranslateAuthor = ({author, onOk, onCancel, open}) => {
           ]}
         >
           <Select
-            // defaultValue={i18n.language}
-              onChange={handleLangChange}
             options={[
               {value: 'ro', label: 'Romana'},
               {value: 'en', label: 'English'},

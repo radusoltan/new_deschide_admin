@@ -14,6 +14,7 @@ import {Category} from "./components/Pages/Content/Categories/Category";
 import {Article} from "./components/Pages/Content/Articles/Article";
 import {ArticleImages} from "./components/Pages/Content/Images/ArticleImages";
 import {Authors} from "./components/Pages/Content/Authors";
+import {Author} from "./components/Pages/Content/Authors/Author";
 
 export const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
       {
         path: "/content/authors",
         element: <Authors />
+      },
+      {
+        path: '/content/author/:author',
+        element: <Author />
       },
       {
         path: "/management/users",

@@ -1,11 +1,14 @@
-import {useState} from "react";
+import React, {useState} from "react";
 import i18n from "../../../../i18n";
-import {Button, Card, Spin, Table} from "antd";
-import {useGetAllAuthorsQuery} from "../../../../services/authors";
+import {Button, Card, Pagination, Spin, Table} from "antd";
+import {useGetAuthorsQuery} from "../../../../services/authors";
 import {DeleteFilled, EditFilled} from "@ant-design/icons";
 import {EditAuthor, NewAuthor, TranslateAuthor} from "./_forms";
+import {Link} from "react-router-dom";
 
 export const Authors = () => {
+
+  const [page, setPage] = useState(1)
   const [locale, setLocale] = useState(i18n.language)
   const [author, setAuthor] = useState(null)
 
@@ -13,19 +16,26 @@ export const Authors = () => {
   const [isEdit, setIsEdit] = useState(false)
   const [isTranslate, setIsTranslate] = useState(false)
 
-  const {data, isLoading} = useGetAllAuthorsQuery()
+  const {data, isLoading} = useGetAuthorsQuery(page)
+
+  i18n.on('languageChanged',(locale)=>{
+    setLocale(locale)
+  })
 
   const columns = [
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
-      render: text => (<>{text}</>)
+      render: (text, {key}) => (
+          <Link to={`/content/author/${key}`}>{text}</Link>
+      )
     },
     {
       title: '',
       render: ({key}) => (<>
-        <Button type="primary" danger className="table-buttons" icon={<DeleteFilled />} onClick={()=>{}} />
+        <Button type="primary" danger className="table-buttons"
+                icon={<DeleteFilled />} onClick={()=>{}} />
         <Button type="info" className="table-buttons" onClick={()=>{
           setIsTranslate(true)
           setAuthor(key)
@@ -38,7 +48,7 @@ export const Authors = () => {
     }
   ]
 
-  const authors = data?.map(author=>({
+  const authors = data?.data.map(author=>({
     key: author.id,
     name: author.translations.find(translation=>translation.locale===locale) ? author.translations.find(translation=>translation.locale===locale).full_name : 'No translations'
   }))
@@ -47,8 +57,12 @@ export const Authors = () => {
 
   return <Card extra={<Button type="success" onClick={()=>setIsNew(true)}>New</Button>}>
     <h1>Authors</h1>
-    <Table columns={columns} dataSource={authors} />
-
+    <Table columns={columns} dataSource={authors} pagination={false} />
+    <Pagination
+        total={data?.total}
+        defaultCurrent={data?.current_page}
+        onChange={page=>setPage(page)}
+    />
     <NewAuthor open={isNew} onOk={()=>setIsNew(false)} onCancel={()=>setIsNew(false)} />
     {isEdit &&
       <EditAuthor

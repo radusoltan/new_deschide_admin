@@ -19,7 +19,7 @@ i18n
   .init({
     resources,
     supportedLngs: ['ro', 'en','ru'],
-    lng: 'ro',
+    // lng: 'ro',
     detection: {
       order:['cookie', 'localStorage'],
       caches: ['cookie', 'localStorage']

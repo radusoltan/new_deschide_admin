@@ -15,10 +15,17 @@ export const authors = createApi({
   }),
   tagTypes: ['Authors'],
   endpoints: build => ({
+    getAuthors: build.query({
+      query: (page)=> `authors?page=${page}`,
+      providesTags: response => response ? [
+          ...response.data.map(({id})=>({type:"Authors", id})),
+        {type: "Authors", id: "PARTIAL-LIST"}
+      ] : [{type: "Authors", id: "PARTIAL-LIST"}]
+    }),
     getAllAuthors: build.query({
-      query: ()=> 'authors',
+      query: ()=> `all-authors`,
       providesTags: response => [
-          ...response.map(({id})=>({type: "Authors", id})),
+        ...response.map(({id})=>({type:"Articles", id})),
         {type: "Authors", id: "LIST"}
       ]
     }),
@@ -57,6 +64,24 @@ export const authors = createApi({
         [{ type: "Authors", id: response.id }],
         { type: "Authors", id: "LIST" }
       ]
+    }),
+    addArticleAuthors: build.mutation({
+      query: ({article, body}) => ({
+        url: `/article/${article}/authors`,
+        method: "POST",
+        body
+      }),
+      invalidatesTags: response => [{ type: "Authors", id: response.id }]
+    }),
+    deleteArticleAuthor: build.mutation({
+      query: ({article, author}) => ({
+        url: `/article/${article}/authors/${author}`,
+        method: "DELETE"
+      }),
+      invalidatesTags: result => [
+        ...result.map(({id})=>({ type: "Authors",  id})),
+        {type: "Authors", id: "LIST"}
+      ]
     })
   })
 })
@@ -64,7 +89,10 @@ export const authors = createApi({
 export const {
   useGetArticleAuthorsQuery,
   useAddAuthorMutation,
-  useGetAllAuthorsQuery,
+  useGetAuthorsQuery,
   useGetAuthorQuery,
-  useUpdateAuthorMutation
+  useUpdateAuthorMutation,
+  useAddArticleAuthorsMutation,
+  useGetAllAuthorsQuery,
+  useDeleteArticleAuthorMutation
 } = authors
