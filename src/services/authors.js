@@ -23,9 +23,9 @@ export const authors = createApi({
       ] : [{type: "Authors", id: "PARTIAL-LIST"}]
     }),
     getAllAuthors: build.query({
-      query: ()=> `all-authors`,
+      query: ()=> `/authors`,
       providesTags: response => [
-        ...response.map(({id})=>({type:"Articles", id})),
+        // ...response.map(({id})=>({type:"Articles", id})),
         {type: "Authors", id: "LIST"}
       ]
     }),

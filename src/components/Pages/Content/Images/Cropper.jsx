@@ -5,6 +5,21 @@ import {useDebounceEffect} from "../../../../lib/utils";
 import {canvasPreview} from "./CanvasPreview";
 import 'react-image-crop/dist/ReactCrop.css'
 import {useCropImageMutation, useGetImageThumbnailsQuery, useGetRenditionsQuery} from "../../../../services/thumbnails";
+import {centerCrop, makeAspectCrop} from "react-image-crop";
+
+const centerAspectCrop = (mediawidth,mediaHeight,aspect) => (centerCrop(
+    makeAspectCrop(
+        {
+          unit: '%',
+          width: 90
+        },
+        aspect,
+        mediawidth,
+        mediaHeight
+    ),
+    mediawidth,
+    mediaHeight
+))
 
 export const Cropper = ({visible, onCancel, onOk, image}) => {
 
@@ -18,11 +33,8 @@ export const Cropper = ({visible, onCancel, onOk, image}) => {
   const [selectedRendition,setSelectedRendition] = useState()
   const [completedCrop, setCompletedCrop] = useState()
   const [aspect,setAspect] = useState()
-  const [crop,setCrop] = useState({
-    unit: '%',
-    width: 100,
-    aspect: 16/9
-  })
+
+  const [crop,setCrop] = useState(centerAspectCrop(image.width, image.height, 16/9))
 
   const saveCrop = ()=>{
     cropImage({
@@ -36,18 +48,21 @@ export const Cropper = ({visible, onCancel, onOk, image}) => {
     setSelectedRendition(id)
     const th = imageThumbnails.find(thumb=>thumb.rendition_id===selectedRendition)
 
-    const {aspect,coords} = renditions.find(rendition=>rendition.id===id)
+    const {aspect,coords, width, height} = renditions.find(rendition=>rendition.id===id)
     setAspect(aspect)
-    if (Object.keys(coords).length !==0){
-      setCrop(coords)
-    }
+    setCrop(
+        centerAspectCrop(width, height, aspect)
+    )
 
   }
 
   useEffect(() => {
     if (renditionsSuccess){
+
       setSelectedRendition(renditions[0].id);
-      setCrop(renditions[0].coords)
+      setCrop(
+        centerAspectCrop(renditions[0].width,renditions[0].height,renditions[0].aspect)
+      )
       setAspect(renditions[0].aspect)
     }
 
@@ -80,39 +95,50 @@ export const Cropper = ({visible, onCancel, onOk, image}) => {
 
   const thumbnails = imageThumbnails?.map(({id, rendition_id, coords, rendition, path, name})=><div key={id}>
     <Card
-        cover={
-          completedCrop && selectedRendition === rendition_id ?
-              <canvas ref={previewCanvasRef} /> :
-              <Image src={process.env.REACT_APP_URL+path} />
-        }
-        hoverable
-        onClick={()=>{
-          selectRendition(rendition_id)
-        }}
-        bodyStyle={
-          selectedRendition === rendition_id ? {
-            background: '#f0f2f5',
-            boxShadow: '0 1px 2px -2px rgb(0 0 0 / 16%), 0 3px 6px 0 rgb(0 0 0 / 12%), 0 5px 12px 4px rgb(0 0 0 / 9%)'
-          } : {}
-        }
+      cover={
+        completedCrop && selectedRendition === rendition_id ?
+          <canvas ref={previewCanvasRef} /> :
+          <Image src={process.env.REACT_APP_URL+path} preview={false} />
+      }
+      hoverable
+      onClick={()=>{
+        selectRendition(rendition_id)
+      }}
+      bodyStyle={
+        selectedRendition === rendition_id ? {
+          background: '#f0f2f5',
+          boxShadow: '0 1px 2px -2px rgb(0 0 0 / 16%), 0 3px 6px 0 rgb(0 0 0 / 12%), 0 5px 12px 4px rgb(0 0 0 / 9%)'
+        } : {}
+      }
     >
 
     </Card>
   </div>)
 
-  return <Modal width='70%'  open={visible} onCancel={onCancel} onOk={()=>{
-    saveCrop()
-    setSelectedRendition(null)
-    setCompletedCrop(null)
-    setAspect(null)
-    setCrop(null)
-    onOk()
-  }}>
+  return <Modal
+    width='70%'
+    open={visible}
+    onCancel={onCancel}
+    onOk={()=>{
+      saveCrop()
+      setSelectedRendition(null)
+      setCompletedCrop(null)
+      setAspect(null)
+      setCrop(null)
+      onOk()
+    }}
+  >
     <Row>
       <Col span={4}>{thumbnails}</Col>
       <Col span={20}>
         <Card>
-          <ReactCrop aspect={aspect} crop={crop} onChange={(c,p)=>{setCrop(p)}} onComplete={(c,p)=>{
+          <ReactCrop
+            aspect={aspect} crop={crop}
+            onChange={(c,p)=>{
+              setCrop(p)
+              setCompletedCrop(p)
+            }}
+            onComplete={(c,p)=>{
             setCompletedCrop(p)
             setCrop(c)
             saveCrop()

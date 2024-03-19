@@ -1,210 +1,178 @@
+import {Button, Card, Space, Input, Row, Col, Divider, Select, Switch, Spin} from "antd";
 import {useGetArticleQuery, useUpdateArticleMutation} from "../../../../services/articles";
-import {Button, Card, Col, Divider, Input, Row, Select, Space, Switch, notification} from "antd";
-import {StopFilled} from "@ant-design/icons";
-import {ArticleImages} from "../Images/ArticleImages";
-import {BodyEditor} from "./Editor";
+import {useParams} from "react-router-dom";
+import {CloseCircleFilled, SaveFilled} from "@ant-design/icons";
 import {useEffect, useState} from "react";
-import {useNavigate, useParams} from "react-router-dom";
 import i18n from "../../../../i18n";
 import {ArticleAuthors} from "./ArticleAuthors";
+import {BodyEditor} from "./Editor";
+import {ArticleImages} from "../Images/ArticleImages";
+import {SubmitEvents} from "./SubmitEvents";
 
 export const Article = ()=>{
 
   const {article} = useParams()
-  const navigate = useNavigate()
+  const [articleData, setArticleData] = useState({})
 
   const {data, isLoading, isSuccess} = useGetArticleQuery(article)
+  const [updateArticle] = useUpdateArticleMutation()
 
-  const [selectedSwitch, setSelectedSwitch] = useState('')
+  const handleFlashChange = (checked) => {
+    setArticleData(prevData => ({
+      ...prevData,
+      is_flash: checked,
+      is_breaking: false,
+      is_alert: false
+    }));
+  };
 
-  const [updateArticle,{data: updateArticleData,isLoading: updateArticleDataIsLoading, isSuccess: updateArticleIsSuccess}] = useUpdateArticleMutation()
+  const handleAlertChange = (checked) => {
+    setArticleData(prevData => ({
+      ...prevData,
+      is_alert: checked,
+      is_breaking: false,
+      is_flash: false
+    }));
+  };
 
-  const [loading,setLoading] = useState(false)
-  const [articleTitle, setArticleTitle] = useState('')
-  const [articleLead, setArticleLead] = useState('')
-  const [articleBody, setArticleBody] = useState('')
-  const [articleIsAlert, setArticleIsAlert] = useState(false)
-  const [articleIsFlash, setArticleIsFlash] = useState(false)
-  const [articleIsBreaking, setArticleIsBreaking] = useState(false)
-  const [articleStatus, setArticleStatus] = useState('')
-  const [categoryId, setCategoryId] = useState('')
-  const [eventPublish, setEventPublish] = useState('')
-  const [translationId, setTranslationId] = useState('')
-  const [articleImages, setArticleImages] = useState([]);
-  const [articleAuthors, setArticleAuthors] = useState([])
-  const body = {
-    title: articleTitle,
-    lead: articleLead,
-    body: articleBody,
-    is_flash: articleIsFlash,
-    is_breaking: articleIsBreaking,
-    is_alert: articleIsAlert,
-    status: articleStatus,
-    categoryId: categoryId,
-    lng: i18n.language
+  const handleBreakingChange = (checked) => {
+    setArticleData(prevData => ({
+      ...prevData,
+      is_breaking: checked,
+      is_flash: false,
+      is_alert: false
+    }));
   }
 
-  useEffect(()=>{
-    if (
-        isLoading||updateArticleDataIsLoading
-    ) {
-      setLoading(true)
+  const save = () => {
+    updateArticle({article,body:{
+      ...articleData,
+      lng: i18n.language
+    }})
+  }
+
+
+
+  useEffect(() => {
+    if (isSuccess) {
+      const { translations, is_alert, is_breaking, is_flash, category_id, visits } = data;
+      const translation = translations.find(({ locale }) => locale === i18n.language) || {};
+
+      const {
+        title = 'No translation',
+        lead = 'No lead Translation',
+        body = 'No body translation',
+        status = 'N',
+        id: translationId,
+        publish_at
+      } = translation;
+
+      const updatedArticleData = {
+        title,
+        lead,
+        body,
+        is_flash,
+        is_breaking,
+        is_alert,
+        status,
+        category_id,
+        publish_at,
+        translationId,
+        visits
+      };
+
+      setArticleData(updatedArticleData);
     }
-    if (isSuccess){
+  }, [isSuccess])
 
-      console.log('Article', data)
-
-      setLoading(false)
-      const {id, category_id, translations, is_alert, is_breaking, is_flash, visits, images, authors } = data
-      const {title, lead, body, status, publish_at, id: translationId} = translations.find(({locale}) => i18n.language === locale) ?
-          translations.find(({locale}) => i18n.language === locale) :
-          {
-            title: 'No translation',
-            lead: 'No lead Translation',
-            body: 'No body translation',
-            status: 'N',
-          }
-
-      setArticleTitle(title)
-      setArticleLead(lead)
-      setArticleBody(body)
-      setArticleIsFlash(is_flash)
-      setArticleIsBreaking(is_breaking)
-      setArticleIsAlert(is_alert)
-      setArticleStatus(status)
-      setCategoryId(category_id)
-      setEventPublish(publish_at)
-      setTranslationId(translationId)
-      // setArticleVisits(visits)
-      setArticleImages(images)
-      setArticleAuthors(authors)
-
-    }
-
-    if (updateArticleIsSuccess){
-      setLoading(false)
-      const {id, category_id, translations, is_alert, is_breaking, is_flash, visits, images, authors } = updateArticleData
-      const {title, lead, body, status, publish_at, id: translationId} = translations.find(({locale}) => i18n.language === locale)
-      setArticleTitle(title)
-      setArticleLead(lead)
-      setArticleBody(body)
-      setArticleIsFlash(is_flash)
-      setArticleIsBreaking(is_breaking)
-      setArticleIsAlert(is_alert)
-      setArticleStatus(status)
-      setCategoryId(category_id)
-      setEventPublish(publish_at)
-      setTranslationId(translationId)
-      setArticleImages(images)
-      setArticleAuthors(authors)
-      // setArticleVisits(visits)
-      notification.success({
-        message: 'Articol salvat',
-        duration: 2
-      })
-    }
-    // if(deletedSuccess){
-    //   setLoading(false)
-    //   const {id, category_id, translations, is_alert, is_breaking, is_flash, visits, images } = deletedData
-    //   const {title, lead, body, status, publish_at, id: translationId} = translations.find(({locale}) => i18n.language === locale)
-    //   setArticleTitle(title)
-    //   setArticleLead(lead)
-    //   setArticleBody(body)
-    //   setArticleIsFlash(is_flash)
-    //   setArticleIsBreaking(is_breaking)
-    //   setArticleIsAlert(is_alert)
-    //   setArticleStatus(status)
-    //   setCategoryId(category_id)
-    //   setEventPublish(publish_at)
-    //   setTranslationId(translationId)
-    //   setArticleImages(images)
-    //   // setArticleVisits(visits)
-    //
-    // }
-
-  },[
-    isSuccess,
-    isLoading,
-    updateArticleDataIsLoading,
-    updateArticleIsSuccess,
-    // deletedSuccess
-  ])
-
-  const handleTitleChange = title => {
-    setArticleTitle(title.target.value)
-  }
-
-  const handleSwitchChange = switchName => {
-
-
-    setSelectedSwitch(switchName === selectedSwitch ? null : switchName)
-  }
-
-  const handleStatusChange = status=>{
-    setArticleStatus(status)
-  }
-  const save = ()=>{
-
-    updateArticle({article, body})
-  }
-  const saveAndClose = ()=>{
-    setTimeout(()=>navigate(`/content/category/${categoryId}`),2000)
-  }
-  const close = ()=>navigate(`/content/category/${categoryId}`)
+  if (isLoading) return <Spin />
 
   return <Card
-      loading={isLoading}
-      title={`Visits: ${data?.visits.score}`}
-      extra={<Space direction="horizontal">
-        <Button onClick={save} type="success">Save</Button>
-        <Button onClick={saveAndClose} type="info">Save & Close</Button>
-        <Button onClick={close} type="primary" danger icon={<StopFilled />}>Close</Button>
-      </Space>}
+    loading={isLoading}
+    title={'Visits: '+ articleData?.visits?.score}
+    extra={<Space direction="horizontal">
+      <Button onClick={save} type="success" icon={<SaveFilled />}>Save</Button>
+      <Button onClick={()=>{
+
+      }} type="info">Save & Close</Button>
+      <Button onClick={()=>{
+
+      }} type="primary" danger icon={<CloseCircleFilled />}>Close</Button>
+    </Space>}
   >
-    <Input onChange={handleTitleChange} value={articleTitle} size="large" maxLength={200} showCount={true} />
+    <Input
+      onChange={e=>{
+        const newTitle = e.target.value;
+        setArticleData(prevData => ({
+          ...prevData,
+          title: newTitle
+        }));
+
+      }}
+      value={articleData.title}
+      size="large"
+      maxLength={200}
+      showCount={true}
+    />
     <ArticleAuthors article={article} />
     <Row>
       <Col span={18}>
         <Card>
-          <BodyEditor initialValue={articleLead} field='lead' onEdit={lead=>{
-            setArticleLead(lead)
+          <BodyEditor field="lead" initialValue={articleData.lead} onEdit={lead=>{
+            setArticleData(prevstate=>({
+              ...prevstate,
+              lead
+            }))
           }} />
           <Divider />
-          <BodyEditor initialValue={articleBody} field="body" onEdit={body=>{
-            setArticleBody(body)
-
+          <BodyEditor initialValue={articleData.body} onEdit={body=>{
+            setArticleData(prevState => ({
+              ...prevState,
+              body
+            }))
           }} />
         </Card>
       </Col>
       <Col span={6}>
         <Card>
-          <Select onChange={handleStatusChange} value={articleStatus}>
+          <Select
+            onChange={status=>{
+              setArticleData(prevstate=>({
+                ...prevstate,
+                status
+              }))
+            }}
+            value={articleData.status}
+          >
             <Select.Option value='N'>New</Select.Option>
             <Select.Option value='S'>Submitted</Select.Option>
             <Select.Option value='P'>Published</Select.Option>
           </Select>
+          {
+            articleData.status === 'S' && <SubmitEvents article={article} publish_at={articleData.publish_at} translationId={articleData.translationId} />
+          }
           <Divider />
           <Card>
             <Space direction="vertical">
               <p>FLASH</p>
-              <Switch onChange={()=> {
-                setArticleIsFlash(!articleIsFlash)
-                handleSwitchChange('is_flash')
-              }} checked={selectedSwitch==='is_flash'} />
+              <Switch
+                onChange={handleFlashChange}
+                checked={articleData.is_flash}
+              />
               <p>ALERT</p>
-              <Switch onChange={()=> {
-                handleSwitchChange('is_alert')
-                setArticleIsFlash(!articleIsAlert)
-              }} checked={selectedSwitch==='is_alert'} />
+              <Switch
+                onChange={handleAlertChange}
+                checked={articleData.is_alert}
+              />
               <p>BREAKING</p>
-              <Switch onChange={()=> {
-                setArticleIsBreaking(!articleIsBreaking)
-                handleSwitchChange('is_breaking')
-              }} checked={selectedSwitch==='is_breaking'} />
+              <Switch
+                onChange={handleBreakingChange}
+                checked={articleData.is_breaking}
+              />
             </Space>
           </Card>
-          <Divider />
-          <ArticleImages article={article} />
+          <Divider/>
+          <ArticleImages article={article}/>
         </Card>
       </Col>
     </Row>

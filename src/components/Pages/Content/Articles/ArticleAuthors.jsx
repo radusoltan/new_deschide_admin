@@ -13,7 +13,7 @@ import {SelectArticleAuthors} from "../Authors/SelectArticleAuthors";
 export const ArticleAuthors = ({article})=>{
   const [isNew, setIsNew] = useState(false)
   const [isSelect, setIsSelect] = useState(false)
-  const {data, isLoading} = useGetArticleAuthorsQuery(article)
+  const {data, isLoading} = useGetArticleAuthorsQuery(article, i18n.language)
   const [addAuthor] = useAddArticleAuthorsMutation()
   const [deleteAuthor] = useDeleteArticleAuthorMutation()
 
@@ -41,6 +41,7 @@ export const ArticleAuthors = ({article})=>{
       dataSource={data}
       renderItem={({translations}) => {
         const author = translations.find(({locale})=>i18n.language===locale)
+
         return (
           <List.Item actions={[
             <Button
@@ -52,7 +53,7 @@ export const ArticleAuthors = ({article})=>{
             />
           ]}>
             <List.Item.Meta
-              title={author.full_name}
+              title={author? author.full_name : "No trans"}
             />
           </List.Item>
         )

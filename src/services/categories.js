@@ -19,7 +19,7 @@ export const categories = createApi({
   tagTypes: ["Categories","Articles"],
   endpoints: build => ({
     getCategories: build.query({
-      query: (page) => `/categories?page=${page}`,
+      query: (page) => `/categories?page=${page}&locale=${i18n.language}`,
       providesTags: result => result ? [
         ...result.data.map(({id})=>({type: 'Categories',id})),
         {type: 'Categories', id: 'PARTIAL-LIST'}

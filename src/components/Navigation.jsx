@@ -11,7 +11,7 @@ import {
 import {Button, Menu, Spin} from 'antd';
 import {useSelector} from "react-redux";
 import {getUserMenu} from "../lib/permissions";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useMatch, useNavigate} from "react-router-dom";
 
 export const Navigation = () => {
   const {permissions, loading} = useSelector(state=>state.auth)
@@ -19,6 +19,7 @@ export const Navigation = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [menuItems, setMenuItems] = useState()
   const navigate = useNavigate()
+  const path = useLocation()
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   };
@@ -27,17 +28,15 @@ export const Navigation = () => {
     setCurrent(e.key);
     navigate(e.key)
 
-  };
-
-
+  }
 
   useEffect(() => {
     if (permissions) setMenuItems(getUserMenu(permissions))
-  }, [permissions]);
+  }, [permissions])
 
   return <Menu
-      defaultSelectedKeys={['1']}
-      defaultOpenKeys={['sub1']}
+      defaultSelectedKeys={[current]}
+      defaultOpenKeys={[current]}
       mode="inline"
       theme="dark"
       onClick={onClick}

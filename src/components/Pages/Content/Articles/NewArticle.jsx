@@ -44,9 +44,9 @@ export const NewArticle = ({open, onOk, onCancel, category})=>{
       </Form.Item>
       <Form.Item
           name="title"
-          label="Article Title"
+          label="___Article Title"
           rules={[
-            {required: true, message: 'Article title is required'}
+            {required: true, message: '___Article title is required'}
           ]}
       ><Input /></Form.Item>
     </Form>
