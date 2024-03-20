@@ -6,6 +6,7 @@ import {articles} from "./services/articles";
 import {images} from "./services/images";
 import {thumbnails} from "./services/thumbnails";
 import {authors} from "./services/authors";
+import {users} from "./services/users";
 
 const store = configureStore({
   reducer: {
@@ -15,7 +16,8 @@ const store = configureStore({
     [articles.reducerPath]: articles.reducer,
     [images.reducerPath]: images.reducer,
     [thumbnails.reducerPath]: thumbnails.reducer,
-    [authors.reducerPath]: authors.reducer
+    [authors.reducerPath]: authors.reducer,
+    [users.reducerPath]: users.reducer
 
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware().concat(
@@ -24,7 +26,8 @@ const store = configureStore({
     articles.middleware,
     images.middleware,
     thumbnails.middleware,
-    authors.middleware
+    authors.middleware,
+    users.middleware
   )
 })
 

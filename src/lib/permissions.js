@@ -11,12 +11,13 @@ export const getUserMenu = permissions => {
       getItem('Content','/content', <MailOutlined />,[
           names.includes('category-list') && getItem('Categories','/content/categories'),
           names.includes('article-list') && getItem('Articles','/content/articles'),
-          names.includes('author-list') && getItem('Authors','/content/authors')
+          names.includes('author-list') && getItem('Authors','/content/authors'),
+          names.includes('list-list') && getItem('Lists','/content/lists')
       ]),
       getItem('Management','/management',<MailOutlined />, [
           names.includes('user-list') && getItem('Users','/management/users'),
           names.includes('role-list') && getItem('Roles','/management/roles'),
-          names.includes('permission-list') && getItem('Permissions','/management/permissions'),
+          getItem('Permissions','/management/permissions'),
       ])
   ]
 

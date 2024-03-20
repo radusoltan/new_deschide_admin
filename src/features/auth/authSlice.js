@@ -29,8 +29,11 @@ const authSlice = createSlice({
       window.location = '/login'
     },
     setCredentials: (state, { payload }) => {
+
+      const permissions = payload.roles.map(role=>role.permissions)
+
       state.userInfo = payload.user
-      state.permissions = payload.permissions
+      state.permissions = permissions.flat()
     },
   },
   extraReducers: builder => {

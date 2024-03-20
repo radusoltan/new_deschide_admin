@@ -15,6 +15,7 @@ import {Article} from "./components/Pages/Content/Articles/Article";
 import {ArticleImages} from "./components/Pages/Content/Images/ArticleImages";
 import {Authors} from "./components/Pages/Content/Authors";
 import {Author} from "./components/Pages/Content/Authors/Author";
+import {Lists} from "./components/Pages/Content/Lists";
 
 export const router = createBrowserRouter([
   {
@@ -54,6 +55,10 @@ export const router = createBrowserRouter([
         element: <Author />
       },
       {
+        path: '/content/lists',
+        element: <Lists />
+      },
+      {
         path: "/management/users",
         element: <Users />
       },
@@ -62,7 +67,7 @@ export const router = createBrowserRouter([
         element: <Roles />,
       },
       {
-        path: '/management.permissions',
+        path: '/management/permissions',
         element: <Permissions />
       }
     ],

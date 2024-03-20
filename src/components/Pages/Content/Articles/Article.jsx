@@ -114,7 +114,7 @@ export const Article = ()=>{
       maxLength={200}
       showCount={true}
     />
-    <ArticleAuthors article={article} />
+    {/*<ArticleAuthors article={article} />*/}
     <Row>
       <Col span={18}>
         <Card>

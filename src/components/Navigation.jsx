@@ -15,7 +15,7 @@ import {useLocation, useMatch, useNavigate} from "react-router-dom";
 
 export const Navigation = () => {
   const {permissions, loading} = useSelector(state=>state.auth)
-  const [current, setCurrent] = useState('mail');
+  const [current, setCurrent] = useState();
   const [collapsed, setCollapsed] = useState(false);
   const [menuItems, setMenuItems] = useState()
   const navigate = useNavigate()
@@ -24,10 +24,8 @@ export const Navigation = () => {
     setCollapsed(!collapsed);
   };
   const onClick = (e) => {
-    console.log('click ', e);
     setCurrent(e.key);
     navigate(e.key)
-
   }
 
   useEffect(() => {
@@ -40,7 +38,6 @@ export const Navigation = () => {
       mode="inline"
       theme="dark"
       onClick={onClick}
-      // inlineCollapsed={collapsed}
       items={menuItems}
   />
 
