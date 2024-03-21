@@ -16,31 +16,16 @@ export const authors = createApi({
   tagTypes: ['Authors'],
   endpoints: build => ({
     getAuthors: build.query({
-      query: (page)=> `authors?page=${page}`,
-      providesTags: response => response ? [
-          ...response.data.map(({id})=>({type:"Authors", id})),
+      query: (page, locale) => `/authors?page=${page}&locale=${locale}`,
+      providesTags: result => [
+          ...result.data.map(({id})=>({type: "Authors", id})),
         {type: "Authors", id: "PARTIAL-LIST"}
-      ] : [{type: "Authors", id: "PARTIAL-LIST"}]
-    }),
-    getAllAuthors: build.query({
-      query: ()=> `/authors`,
-      providesTags: response => [
-        // ...response.map(({id})=>({type:"Articles", id})),
-        {type: "Authors", id: "LIST"}
       ]
     }),
     getAuthor: build.query({
-      query: (author) => `/authors/${author}`,
-      providesTags: response => [
-          [{ type: "Authors", id: response.id }],
-        {type: "Authors", id: "LIST"}
-      ]
-    }),
-    getArticleAuthors: build.query({
-      query: (article) => `/article/${article}/authors`,
+      query: author => `/authors/${author}`,
       providesTags: result => [
-          ...result.map(({id})=>({ type: "Authors",id })),
-        {type:"Authors", id: "LIST"}
+        { type: 'Authors', id: result.id }
       ]
     }),
     addAuthor: build.mutation({
@@ -49,50 +34,39 @@ export const authors = createApi({
         method: "POST",
         body
       }),
-      invalidatesTags: response => [
-        [{ type: "Authors", id: response.id }],
-        { type: "Authors", id: "LIST" }
+      invalidatesTags: result => [
+        { type: "Authors", id: result.id },
+        { type: "Authors", id: "PARTIAL-LIST" }
       ]
     }),
     updateAuthor: build.mutation({
-      query: ({author, body}) => ({
+      query: ({author,body}) =>({
         url: `/authors/${author}`,
         method: "PATCH",
         body
       }),
-      invalidatesTags: response => [
-        [{ type: "Authors", id: response.id }],
-        { type: "Authors", id: "LIST" }
+      invalidatesTags: result => [
+        { type: "Authors", id: result.id },
+        { type: "Authors", id: "PARTIAL-LIST" }
       ]
     }),
-    addArticleAuthors: build.mutation({
-      query: ({article, body}) => ({
-        url: `/article/${article}/authors`,
-        method: "POST",
-        body
-      }),
-      invalidatesTags: response => [{ type: "Authors", id: response.id }]
-    }),
-    deleteArticleAuthor: build.mutation({
-      query: ({article, author}) => ({
-        url: `/article/${article}/authors/${author}`,
+    deleteAuthor: build.mutation({
+      query: author => ({
+        url: `/authors/${author}`,
         method: "DELETE"
       }),
-      invalidatesTags: result => [
-        ...result.map(({id})=>({ type: "Authors",  id})),
-        {type: "Authors", id: "LIST"}
+      invalidatesTags: (r,e,id)=>[
+        { type: "Authors", id },
+        { type: "Authors", id: "PARTIAL-LIST" }
       ]
     })
   })
 })
 
 export const {
-  useGetArticleAuthorsQuery,
-  useAddAuthorMutation,
   useGetAuthorsQuery,
   useGetAuthorQuery,
+  useAddAuthorMutation,
   useUpdateAuthorMutation,
-  useAddArticleAuthorsMutation,
-  useGetAllAuthorsQuery,
-  useDeleteArticleAuthorMutation
+  useDeleteAuthorMutation
 } = authors

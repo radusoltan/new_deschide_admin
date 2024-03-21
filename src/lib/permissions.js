@@ -10,7 +10,7 @@ export const getUserMenu = permissions => {
       getItem('Dashboard','/'),
       getItem('Content','/content', <MailOutlined />,[
           names.includes('category-list') && getItem('Categories','/content/categories'),
-          names.includes('article-list') && getItem('Articles','/content/articles'),
+          // names.includes('article-list') && getItem('Articles','/content/articles'),
           names.includes('author-list') && getItem('Authors','/content/authors'),
           names.includes('list-list') && getItem('Lists','/content/lists')
       ]),

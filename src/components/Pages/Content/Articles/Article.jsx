@@ -1,6 +1,6 @@
 import {Button, Card, Space, Input, Row, Col, Divider, Select, Switch, Spin} from "antd";
 import {useGetArticleQuery, useUpdateArticleMutation} from "../../../../services/articles";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {CloseCircleFilled, SaveFilled} from "@ant-design/icons";
 import {useEffect, useState} from "react";
 import i18n from "../../../../i18n";
@@ -10,6 +10,8 @@ import {ArticleImages} from "../Images/ArticleImages";
 import {SubmitEvents} from "./SubmitEvents";
 
 export const Article = ()=>{
+
+  const navigate = useNavigate()
 
   const {article} = useParams()
   const [articleData, setArticleData] = useState({})
@@ -51,11 +53,21 @@ export const Article = ()=>{
     }})
   }
 
+  const saveAndClose = ()=>{
+
+    save()
+
+    setTimeout(()=>navigate(`/content/category/${articleData.category_id}`), 2000)
+
+  }
+
+  const close = ()=> navigate(`/content/category/${articleData.category_id}`)
+
 
 
   useEffect(() => {
     if (isSuccess) {
-      const { translations, is_alert, is_breaking, is_flash, category_id, visits } = data;
+      const { translations, is_alert, is_breaking, is_flash, category_id, visits, authors } = data;
       const translation = translations.find(({ locale }) => locale === i18n.language) || {};
 
       const {
@@ -78,7 +90,8 @@ export const Article = ()=>{
         category_id,
         publish_at,
         translationId,
-        visits
+        visits,
+        authors
       };
 
       setArticleData(updatedArticleData);
@@ -92,12 +105,8 @@ export const Article = ()=>{
     title={'Visits: '+ articleData?.visits?.score}
     extra={<Space direction="horizontal">
       <Button onClick={save} type="success" icon={<SaveFilled />}>Save</Button>
-      <Button onClick={()=>{
-
-      }} type="info">Save & Close</Button>
-      <Button onClick={()=>{
-
-      }} type="primary" danger icon={<CloseCircleFilled />}>Close</Button>
+      <Button onClick={saveAndClose} type="info">Save & Close</Button>
+      <Button onClick={close} type="primary" danger icon={<CloseCircleFilled />}>Close</Button>
     </Space>}
   >
     <Input
@@ -114,7 +123,7 @@ export const Article = ()=>{
       maxLength={200}
       showCount={true}
     />
-    {/*<ArticleAuthors article={article} />*/}
+    <ArticleAuthors article={article} authors={articleData.authors} />
     <Row>
       <Col span={18}>
         <Card>

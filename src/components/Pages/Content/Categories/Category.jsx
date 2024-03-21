@@ -9,13 +9,16 @@ import {NewArticle} from "../Articles/NewArticle";
 export const Category = ()=>{
 
   const [newArticle, setNewArticle] = useState(false)
+  const [locale, setLocale] = useState(i18n.language)
 
   const {category} = useParams()
 
 
   const [page, setPage] = useState(1)
-  const {data, isLoading} = useGetCategoryArticlesQuery({page, category})
+  const {data, isLoading} = useGetCategoryArticlesQuery({page, category, locale})
   const [addArticle] = useAddArticleMutation()
+
+  i18n.on('languageChanged', locale=>setLocale(locale))
 
   const columns = [
     {

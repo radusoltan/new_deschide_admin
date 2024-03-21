@@ -1,12 +1,14 @@
 import React, {useState} from "react";
 import i18n from "../../../../i18n";
-import {Button, Card, Pagination, Spin, Table} from "antd";
-import {useGetAuthorsQuery} from "../../../../services/authors";
+import {Button, Card, Pagination, Space, Spin, Table} from "antd";
+import {useLocation, useParams} from "react-router-dom";
+import {useDeleteAuthorMutation, useGetAuthorsQuery} from "../../../../services/authors";
 import {DeleteFilled, EditFilled} from "@ant-design/icons";
 import {EditAuthor, NewAuthor, TranslateAuthor} from "./_forms";
-import {Link} from "react-router-dom";
 
 export const Authors = () => {
+
+  const {pathname} = useLocation()
 
   const [page, setPage] = useState(1)
   const [locale, setLocale] = useState(i18n.language)
@@ -14,83 +16,82 @@ export const Authors = () => {
 
   const [isNew, setIsNew] = useState(false)
   const [isEdit, setIsEdit] = useState(false)
-  const [isTranslate, setIsTranslate] = useState(false)
 
   const {data, isLoading} = useGetAuthorsQuery(page)
+  const [deleteAuthor] = useDeleteAuthorMutation()
 
   i18n.on('languageChanged',(locale)=>{
     setLocale(locale)
   })
+
+  const authors = data?.data.map(author=>({
+    key: author.id,
+    name: author.translations.find((translation)=>translation.locale===locale) ?
+        author.translations.find((translation)=>translation.locale===locale).full_name :
+        "No trans"
+  }))
 
   const columns = [
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
-      render: (text, {key}) => (
-          <Link to={`/content/author/${key}`}>{text}</Link>
-      )
+      render: (text) => text
     },
     {
-      title: '',
-      render: ({key}) => (<>
-        <Button type="primary" danger className="table-buttons"
-                icon={<DeleteFilled />} onClick={()=>{}} />
-        <Button type="info" className="table-buttons" onClick={()=>{
-          setIsTranslate(true)
-          setAuthor(key)
-        }}>Translate</Button>
-        <Button type="warning" onClick={()=>{
-          setIsEdit(true)
-          setAuthor(key)
-        }} className="table-buttons" icon={<EditFilled />} />
-      </>)
+      render: ({key})=>(<Space>
+        <Button
+          type="warning"
+          icon={<EditFilled />}
+          onClick={()=>{
+            setAuthor(key)
+            setIsEdit(true)
+          }}
+        />
+        <Button
+          danger
+          type="primary"
+          icon={<DeleteFilled />}
+          onClick={()=>{
+            deleteAuthor(key)
+          }}
+        />
+      </Space>)
     }
   ]
 
-  const authors = data?.data.map(author=>({
-    key: author.id,
-    name: author.translations.find(translation=>translation.locale===locale) ? author.translations.find(translation=>translation.locale===locale).full_name : 'No translations'
-  }))
-
-  if (isLoading) return <Spin />
-
-  return <Card extra={<Button type="success" onClick={()=>setIsNew(true)}>New</Button>}>
+  return <Card extra={
+    <Button
+        type="success"
+        onClick={()=>setIsNew(true)}
+    >New
+    </Button>
+  }>
     <h1>Authors</h1>
-    <Table columns={columns} dataSource={authors} pagination={false} />
+    <Table dataSource={authors} columns={columns} pagination={false} />
     <Pagination
-        total={data?.total}
-        defaultCurrent={data?.current_page}
-        onChange={page=>setPage(page)}
+      total={data?.total}
+      defaultCurrent={data?.current_page}
+      onChange={page=>setPage(page)}
     />
-    <NewAuthor open={isNew} onOk={()=>setIsNew(false)} onCancel={()=>setIsNew(false)} />
+    <NewAuthor
+      open={isNew}
+      onOk={()=>setIsNew(false)}
+      onCancel={()=>setIsNew(false)}
+    />
     {isEdit &&
       <EditAuthor
         open={isEdit}
         author={author}
-        onOk={() => {
-          setIsEdit(false)
-          setAuthor(null)
-        }}
-        onCancel={() => {
-          setIsEdit(false)
-          setAuthor(null)
-      }}/>
-    }
-    {isTranslate &&
-      <TranslateAuthor
-        open={isTranslate}
-        author={author}
         onOk={()=>{
           setAuthor(null)
-          setIsTranslate(false)
+          setIsEdit(false)
         }}
         onCancel={()=>{
           setAuthor(null)
-          setIsTranslate(false)
+          setIsEdit(false)
         }}
       />
     }
-
   </Card>
 }

@@ -14,10 +14,15 @@ export const articles = createApi({
       }
     }
   }),
-  tagTypes: ["Articles"],
+  tagTypes: ["Articles", "Authors"],
   endpoints: build => ({
     getArticle: build.query({
       query: id => `/articles/${id}&locale=${i18n.language}`,
+      providesTags: ({id,authors}) => [
+        { type: "Article", id },
+        ...authors.map(({id})=>({ type: "Authors", id })),
+        { type: "Authors", id: "LIST" }
+      ]
     }),
     getCategoryArticles: build.query({
       query: ({page, category})=> `/category/${category}/articles?page=${page}&locale=${i18n.language}`,
@@ -61,7 +66,55 @@ export const articles = createApi({
         method: "DELETE"
       }),
       invalidatesTags: response => [{type: "Articles", id: response.id}]
+    }),
+
+    getAuthors: build.query({
+      query: ()=>'/all-authors',
+      providesTags: result => [
+        ...result.map(author=>({ type: "Authors", id: result.id })),
+        { type: "Authors", id: "LIST" }
+      ]
+    }),
+    getArticleAuthors: build.query({
+      query: article => `/article/${article}/authors`,
+      providesTags: result => [
+        ...result.map(author=>({ type: "Authors", id: result.id })),
+        { type: "Authors", id: "LIST" }
+      ]
+    }),
+    addArticleAuthor: build.mutation({
+      query: ({article, body}) => ({
+        url: `/article/${article}/authors`,
+        method: "POST",
+        body
+      }),
+      invalidatesTags: result => [
+        ...result.map(author=>({ type: "Authors", id: result.id })),
+        { type: "Authors", id: "LIST" }
+      ]
+    }),
+    deleteArticleAuthor: build.mutation({
+      query: ({article, author}) => ({
+        url: `/article/${article}/authors/${author}`,
+        method: "DELETE"
+      }),
+      invalidatesTags: result => [
+        ...result.map(({id})=>({type:'Authors',id})),
+        {type:'Authors',id:'LIST'}
+      ]
+    }),
+    authorsSearch: build.mutation({
+      query: q => ({
+        url: `/authors/search`,
+        method: "POST",
+        body: {q, locale: i18n.language}
+      })
     })
+
+
+
+
+
   })
 })
 
@@ -71,5 +124,11 @@ export const {
   useGetCategoryArticlesQuery,
   useAddArticleMutation,
   useSetArticlePublishTimeMutation,
-  useDeleteArticlePublishTimeMutation
+  useDeleteArticlePublishTimeMutation,
+
+  useGetAuthorsQuery,
+  useAddArticleAuthorMutation,
+  useGetArticleAuthorsQuery,
+  useDeleteArticleAuthorMutation,
+  useAuthorsSearchMutation
 } = articles

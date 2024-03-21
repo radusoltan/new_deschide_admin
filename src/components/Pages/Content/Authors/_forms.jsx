@@ -2,29 +2,46 @@ import {Card, Form, Input, Modal, Select, Spin} from "antd";
 import {useAddAuthorMutation, useGetAuthorQuery, useUpdateAuthorMutation} from "../../../../services/authors";
 import i18n from "../../../../i18n";
 import {useEffect, useState} from "react";
+import {useAddArticleAuthorMutation} from "../../../../services/articles";
+import {useParams} from "react-router-dom";
 
-export const NewAuthor = ({onOk, onCancel, open}) => {
+export const NewAuthor = ({onOk, onCancel, open }) => {
+
+  const {article} = useParams()
 
   const [form] = Form.useForm()
 
+  const [addArticleAuthor] = useAddArticleAuthorMutation()
   const [addAuthor] = useAddAuthorMutation()
 
+
+
   return <Modal
-      open={open}
-      onOk={()=>{
-        form.validateFields()
-            .then(values=>{
-              form.resetFields()
-              addAuthor({...values, locale: i18n.language})
+    open={open}
+    onOk={()=>{
+      form.validateFields()
+        .then(values=>{
+          form.resetFields()
+          if (article){
+            addArticleAuthor({article,body: {
+              ...values,
+              locale: i18n.language
+            }})
+          } else {
+            addAuthor({
+              ...values,
+              locale: i18n.language
             })
-        onOk()
-      }}
-      onCancel={()=>{
-        onCancel()
-      }}
+          }
+
+          onOk()
+        })
+    }}
+    onCancel={()=>{
+      onCancel()
+    }}
   >
     <Card>
-
       <Form
           form={form}
           name="new_author_form"
@@ -48,11 +65,11 @@ export const NewAuthor = ({onOk, onCancel, open}) => {
             name="email"
             label="Email"
             rules={[
-              {required:true,message: 'Email is required'}
+              {required:true,message: 'Email is required'},
+              {type: 'email'}
             ]}
         ><Input /></Form.Item>
       </Form>
-
     </Card>
   </Modal>
 }
@@ -88,32 +105,49 @@ export const EditAuthor = ({author, onOk, onCancel, open}) => {
           name="edit_author_form"
           layout="vertical"
           initialValues={{
-            first_name: formValues ? formValues.first_name : 'No trans',
-            last_name: formValues ? formValues.last_name : 'No trans',
+            first_name: formValues ? formValues.first_name : "No trans" ,
+            last_name: formValues ? formValues.last_name : "No trans",
             email: data?.email,
+            locale: i18n.language
           }}
       >
         <Form.Item
-            name="first_name"
+            name='first_name'
             label="First Name"
             rules={[
-              {required:true,message: 'First Name is required'}
+              { required: true, message: "First Name is required" }
             ]}
         ><Input /></Form.Item>
         <Form.Item
-            name="last_name"
+            name='last_name'
             label="Last Name"
             rules={[
-              {required:true,message: 'Last Name is required'}
+              { required: true, message: "Last Name is required" }
             ]}
         ><Input /></Form.Item>
         <Form.Item
             name="email"
             label="Email"
             rules={[
-              {required:true,message: 'Email is required'}
+              {required:true,message: 'Email is required'},
+              {type: 'email'}
             ]}
         ><Input /></Form.Item>
+        <Form.Item
+            name='locale'
+            label="Locale"
+            rules={[
+              { required: true, message: 'Select locale' }
+            ]}
+        >
+          <Select
+              options={[
+                {value: 'ro', label: 'Romana'},
+                {value: 'en', label: 'English'},
+                {value: 'ru', label: 'Russian'},
+              ]}
+          />
+        </Form.Item>
       </Form>
     </Card>
   </Modal>

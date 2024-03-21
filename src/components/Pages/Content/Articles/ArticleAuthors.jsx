@@ -1,28 +1,24 @@
 import {Button, Card, List, Space, Spin} from "antd";
-import {
-  useAddArticleAuthorsMutation,
-  useDeleteArticleAuthorMutation,
-  useGetArticleAuthorsQuery
-} from "../../../../services/authors";
-import {DeleteOutlined, UnorderedListOutlined, UserAddOutlined} from "@ant-design/icons";
+
+import {DeleteFilled, DeleteOutlined, UnorderedListOutlined, UserAddOutlined} from "@ant-design/icons";
 import {useState} from "react";
-import {AddAuthor} from "../Authors/AddAuthor";
+
 import i18n from "../../../../i18n";
 import {SelectArticleAuthors} from "../Authors/SelectArticleAuthors";
+import {NewAuthor} from "../Authors/_forms";
+import {articles, useDeleteArticleAuthorMutation, useGetArticleAuthorsQuery} from "../../../../services/articles";
+
 
 export const ArticleAuthors = ({article})=>{
   const [isNew, setIsNew] = useState(false)
   const [isSelect, setIsSelect] = useState(false)
-  const {data, isLoading} = useGetArticleAuthorsQuery(article, i18n.language)
-  const [addAuthor] = useAddArticleAuthorsMutation()
-  const [deleteAuthor] = useDeleteArticleAuthorMutation()
 
-  if (isLoading) {
-    return <Spin />
-  }
+  const {data, isLoading} = useGetArticleAuthorsQuery(article)
+  const [deleteArticleAuthor] = useDeleteArticleAuthorMutation()
+
 
   return <Card
-    loading={isLoading}
+
     title={"Authors"}
     extra={<Space>
       <Button
@@ -38,51 +34,38 @@ export const ArticleAuthors = ({article})=>{
     </Space>}
   >
     <List
+      loading={isLoading}
       dataSource={data}
-      renderItem={({translations}) => {
-        const author = translations.find(({locale})=>i18n.language===locale)
-
+      renderItem={author=>{
         return (
-          <List.Item actions={[
+          <List.Item key={author.id} actions={[
             <Button
-              onClick={()=> {
-                deleteAuthor({article, author: author.author_id})
-              }}
-              type="danger"
-              icon={<DeleteOutlined />}
+              danger
+              type="primary"
+              icon={<DeleteFilled />}
+              onClick={()=>deleteArticleAuthor({article, author: author.id})}
             />
           ]}>
-            <List.Item.Meta
-              title={author? author.full_name : "No trans"}
-            />
+            <List.Item.Meta title={author.full_name} />
           </List.Item>
         )
       }}
     />
-    <AddAuthor
-      open={isNew}
-      onOk={values=> {
-        console.log(values)
-        const body = {
-          ...values,
-          locale: i18n.language
-        }
-        addAuthor({article, body})
-        setIsNew(false)
-      }}
-      onCancel={()=> {
-        setIsNew(false)
-      }}
-    />
+
     <SelectArticleAuthors
-      open={isSelect}
-      article={article}
-      onOk={()=>{
+      open={isSelect} onOk={()=>{
         setIsSelect(false)
       }}
       onCancel={()=>{
         setIsSelect(false)
       }}
+      article={article}
+    />
+    <NewAuthor
+      open={isNew}
+      onOk={()=>setIsNew(false)}
+      article={article}
+      onCancel={()=>setIsNew(false)}
     />
   </Card>
 }

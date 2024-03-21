@@ -1,36 +1,68 @@
 import {AutoComplete, Card, Modal, Spin} from "antd";
-import {useAddArticleAuthorsMutation, useGetAllAuthorsQuery} from "../../../../services/authors";
+import {useAddArticleAuthorsMutation} from "../../../../services/authors";
+import {useAddArticleAuthorMutation, useAuthorsSearchMutation, useGetAuthorsQuery} from "../../../../services/articles";
 import {useEffect, useState} from "react";
 import i18n from "../../../../i18n";
 
 export const SelectArticleAuthors = ({open, onOk, onCancel, article})=>{
 
+  const [locale, setLocale] = useState(i18n.language)
+
   const [options, setOptions] = useState([])
-  const {data, isLoading, isSuccess} = useGetAllAuthorsQuery()
-  const [addAuthor] = useAddArticleAuthorsMutation()
-  const [inputValue, setInputValue] = useState('')
   const [selectedOption, setSelectedOption] = useState()
+  const {data, isLoading, isSuccess} = useGetAuthorsQuery()
+  const [value, setValue] = useState('')
+  const [searchAuthor,{data: result, isSuccess: resultSuccess}] = useAuthorsSearchMutation()
+  const [addAuthor] = useAddArticleAuthorMutation()
 
-  const getAuthorName = (author) => {
-    if (author.translations && author.translations.length > 0) {
-      const translation = author.translations.find(translation => translation.locale === i18n.language);
-      if (translation) {
-        return translation.first_name+' '+translation.last_name;
-      }
-    }
-    return 'No translation';
-  };
 
-  // Funcție pentru a obține id-ul autorului
-  const getAuthorId = (author) => {
-    if (author.translations && author.translations.length > 0) {
-      const translation = author.translations.find(translation => translation.locale === i18n.language);
-      if (translation) {
-        return translation.id;
-      }
+  const onChange = data => {
+    setValue(data)
+    searchAuthor(data)
+  }
+
+
+  const onSelect = (data, option) => {
+    setSelectedOption(option)
+    setValue(option.label)
+  }
+
+  i18n.on('languageChanged', locale=>setLocale(locale))
+
+  useEffect(() => {
+    if (isSuccess){
+
+      setOptions(data.map(({id, translations})=>{
+        if(translations.length===0){
+          return {
+            value: String(id),
+            label: "NO Full Name Author TRanslations"
+          }
+        } else {
+          return {
+            value: String(id),
+            label: translations.find(translation=>translation.locale===locale) ? String(translations.find(translation=>translation.locale===locale).full_name) : "No translation"
+          }
+        }
+      }))
+
     }
-    return author.id;
-  };
+    if (resultSuccess){
+      setOptions(result.map(({id, translations})=>{
+        if(translations.length===0){
+          return {
+            value: String(id),
+            label: "NO Full Name Author TRanslations"
+          }
+        } else {
+          return {
+            value: String(id),
+            label: translations.find(translation=>translation.locale===locale) ? String(translations.find(translation=>translation.locale===locale).full_name) : "No translation"
+          }
+        }
+      }))
+    }
+  }, [isSuccess, locale, resultSuccess]);
 
   if (isLoading) return <Spin />
 
@@ -38,14 +70,17 @@ export const SelectArticleAuthors = ({open, onOk, onCancel, article})=>{
   return <Modal
     open={open}
     onOk={()=>{
-      const body = {
+
+      addAuthor({
+        article,
+        body: {
         author: parseInt(selectedOption.value),
-        locale: i18n.language
-      }
-      addAuthor({article, body})
-      setSelectedOption('')
-      setInputValue('')
+        locale
+      }})
+
       onOk()
+      setValue('')
+      setSelectedOption(null)
     }}
     onCancel={()=>{
 
@@ -55,25 +90,14 @@ export const SelectArticleAuthors = ({open, onOk, onCancel, article})=>{
 
     <AutoComplete
       allowClear={true}
-      options={data?.map(author=>({
-        value: String(getAuthorId(author)),
-        label: String(getAuthorName(author))
-      }))}
-      value={inputValue}
+      options={options}
+      onSelect={onSelect}
+      onChange={onChange}
+      onClear={()=>setValue('')}
       style={{
-        width: '100%'
+        width: '100%',
       }}
-      onSelect={(data,option)=>{
-        setSelectedOption(option)
-        setInputValue(option.label)
-      }}
-      onChange={(data, option)=>{
-        console.log(option)
-      }}
-      onClear={()=>{
-        setInputValue('')
-        setSelectedOption(null)
-      }}
+      value={value}
     />
 
   </Card></Modal>
