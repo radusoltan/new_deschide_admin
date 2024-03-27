@@ -1,7 +1,6 @@
 import {Card, Form, Input, Modal, Select, Spin} from "antd";
 import {useAddAuthorMutation, useGetAuthorQuery, useUpdateAuthorMutation} from "../../../../services/authors";
 import i18n from "../../../../i18n";
-import {useEffect, useState} from "react";
 import {useAddArticleAuthorMutation} from "../../../../services/articles";
 import {useParams} from "react-router-dom";
 

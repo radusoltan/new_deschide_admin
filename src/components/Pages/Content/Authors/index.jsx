@@ -1,14 +1,11 @@
 import React, {useState} from "react";
 import i18n from "../../../../i18n";
-import {Button, Card, Pagination, Space, Spin, Table} from "antd";
-import {useLocation, useParams} from "react-router-dom";
+import {Button, Card, Pagination, Space, Table} from "antd";
 import {useDeleteAuthorMutation, useGetAuthorsQuery} from "../../../../services/authors";
 import {DeleteFilled, EditFilled} from "@ant-design/icons";
-import {EditAuthor, NewAuthor, TranslateAuthor} from "./_forms";
+import {EditAuthor, NewAuthor} from "./_forms";
 
 export const Authors = () => {
-
-  const {pathname} = useLocation()
 
   const [page, setPage] = useState(1)
   const [locale, setLocale] = useState(i18n.language)
@@ -17,7 +14,7 @@ export const Authors = () => {
   const [isNew, setIsNew] = useState(false)
   const [isEdit, setIsEdit] = useState(false)
 
-  const {data, isLoading} = useGetAuthorsQuery(page)
+  const {data} = useGetAuthorsQuery(page)
   const [deleteAuthor] = useDeleteAuthorMutation()
 
   i18n.on('languageChanged',(locale)=>{

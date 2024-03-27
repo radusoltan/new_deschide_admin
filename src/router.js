@@ -16,6 +16,8 @@ import {ArticleImages} from "./components/Pages/Content/Images/ArticleImages";
 import {Authors} from "./components/Pages/Content/Authors";
 import {Author} from "./components/Pages/Content/Authors/Author";
 import {Lists} from "./components/Pages/Content/Lists";
+import {Select} from "antd";
+import {SelectedList} from "./components/Pages/Content/Articles/SelectedList";
 
 export const router = createBrowserRouter([
   {
@@ -41,6 +43,10 @@ export const router = createBrowserRouter([
       {
         path: "/content/article/:article",
         element: <Article />
+      },
+      {
+        path: "/content/article/:article/list",
+        element: <SelectedList list={1} />
       },
       {
         path: "/content/article/:article/images",

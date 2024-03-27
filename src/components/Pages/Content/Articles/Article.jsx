@@ -8,6 +8,8 @@ import {ArticleAuthors} from "./ArticleAuthors";
 import {BodyEditor} from "./Editor";
 import {ArticleImages} from "../Images/ArticleImages";
 import {SubmitEvents} from "./SubmitEvents";
+import {Lists} from "../Lists";
+import {ArticlesList} from "./ArticlesList";
 
 export const Article = ()=>{
 
@@ -96,7 +98,7 @@ export const Article = ()=>{
 
       setArticleData(updatedArticleData);
     }
-  }, [isSuccess])
+  }, [isSuccess, data])
 
   if (isLoading) return <Spin />
 
@@ -141,6 +143,7 @@ export const Article = ()=>{
             }))
           }} />
         </Card>
+
       </Col>
       <Col span={6}>
         <Card>
@@ -182,6 +185,7 @@ export const Article = ()=>{
           </Card>
           <Divider/>
           <ArticleImages article={article}/>
+          <ArticlesList />
         </Card>
       </Col>
     </Row>

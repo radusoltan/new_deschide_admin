@@ -1,12 +1,10 @@
-import {Button, Card, List, Space, Spin} from "antd";
+import {Button, Card, List, Space } from "antd";
 
-import {DeleteFilled, DeleteOutlined, UnorderedListOutlined, UserAddOutlined} from "@ant-design/icons";
+import {DeleteFilled, UnorderedListOutlined, UserAddOutlined} from "@ant-design/icons";
 import {useState} from "react";
-
-import i18n from "../../../../i18n";
 import {SelectArticleAuthors} from "../Authors/SelectArticleAuthors";
 import {NewAuthor} from "../Authors/_forms";
-import {articles, useDeleteArticleAuthorMutation, useGetArticleAuthorsQuery} from "../../../../services/articles";
+import {useDeleteArticleAuthorMutation, useGetArticleAuthorsQuery} from "../../../../services/articles";
 
 
 export const ArticleAuthors = ({article})=>{

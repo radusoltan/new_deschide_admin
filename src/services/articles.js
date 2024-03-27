@@ -16,8 +16,16 @@ export const articles = createApi({
   }),
   tagTypes: ["Articles", "Authors"],
   endpoints: build => ({
+    getArticles: build.query({
+      query: (page)=> `/articles?page=${page}`,
+      providesTags: result => [
+        result.data.map(article=>[{ type: "Articles", id: result.id }]),
+        {type:'Articles',id:'PARTIAL-LIST'}
+      ]
+    }),
     getArticle: build.query({
       query: id => `/articles/${id}&locale=${i18n.language}`,
+
       providesTags: ({id,authors}) => [
         { type: "Article", id },
         ...authors.map(({id})=>({ type: "Authors", id })),
@@ -119,6 +127,7 @@ export const articles = createApi({
 })
 
 export const {
+  useGetArticlesQuery,
   useGetArticleQuery,
   useUpdateArticleMutation,
   useGetCategoryArticlesQuery,

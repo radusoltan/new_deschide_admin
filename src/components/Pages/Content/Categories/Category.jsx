@@ -73,6 +73,7 @@ export const Category = ()=>{
       total={data?.total}
       onChange={pageChange}
       pageSize={data?.per_page}
+      hideOnSinglePage={true}
     />
   <NewArticle
       open={newArticle}

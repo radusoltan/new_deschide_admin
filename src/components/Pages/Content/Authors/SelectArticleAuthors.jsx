@@ -1,5 +1,4 @@
 import {AutoComplete, Card, Modal, Spin} from "antd";
-import {useAddArticleAuthorsMutation} from "../../../../services/authors";
 import {useAddArticleAuthorMutation, useAuthorsSearchMutation, useGetAuthorsQuery} from "../../../../services/articles";
 import {useEffect, useState} from "react";
 import i18n from "../../../../i18n";
@@ -62,7 +61,7 @@ export const SelectArticleAuthors = ({open, onOk, onCancel, article})=>{
         }
       }))
     }
-  }, [isSuccess, locale, resultSuccess]);
+  }, [isSuccess, locale, resultSuccess, data, result]);
 
   if (isLoading) return <Spin />
 
